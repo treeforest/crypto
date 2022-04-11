@@ -2,6 +2,7 @@ package paillier
 
 import (
 	"crypto/rand"
+	"fmt"
 	"io"
 	"math/big"
 	rnd "math/rand"
@@ -39,6 +40,7 @@ func (pub *PublicKey) Encrypt(val int64) *big.Int {
 	for {
 		r.Rand(mathRand, pub.N)
 		if gcd.GCD(nil, nil, r, pub.N).Cmp(one) == 0 {
+			fmt.Printf("r = %d\n", r.Int64())
 			break
 		}
 	}
@@ -79,10 +81,10 @@ func L(x, n *big.Int) *big.Int {
 
 func GenerateKey(rd io.Reader, bits int) (*PrivateKey, error) {
 	var (
-		p, q, n, lambda *big.Int
-		err             error
+		p, q, n, m *big.Int
+		err        error
 	)
-	n, lambda = new(big.Int), new(big.Int)
+	n, m = new(big.Int), new(big.Int)
 
 	for {
 		p, err = rand.Prime(rd, bits)
@@ -98,20 +100,31 @@ func GenerateKey(rd io.Reader, bits int) (*PrivateKey, error) {
 		}
 
 		n.Mul(p, q)
-		lambda.Mul(new(big.Int).Sub(p, one), new(big.Int).Sub(q, one))
+		m.Mul(new(big.Int).Sub(p, one), new(big.Int).Sub(q, one))
 
 		// gcd(pq, (p-1)(q-1)) = 1
-		if new(big.Int).GCD(nil, nil, n, lambda).Cmp(one) == 0 {
+		if new(big.Int).GCD(nil, nil, n, m).Cmp(one) == 0 {
 			break
 		}
 	}
 
+	lambda := lcm(p.Sub(p, one), q.Sub(q, one))
+	g := new(big.Int).Add(n, one)
+	nn := new(big.Int).Mul(n, n)
+	mu := new(big.Int).ModInverse(L(new(big.Int).Exp(g, lambda, nn), n), n)
+
 	return &PrivateKey{
 		Lambda: lambda,
-		Mu:     new(big.Int).ModInverse(lambda, n),
+		Mu:     mu,
 		Public: &PublicKey{
 			N:  n,
-			G:  new(big.Int).Add(n, one),
-			N2: new(big.Int).Mul(n, n),
+			G:  g,
+			N2: nn,
 		}}, nil
+}
+
+func lcm(a, b *big.Int) *big.Int {
+	return new(big.Int).Div(
+		new(big.Int).Mul(a, b),
+		new(big.Int).GCD(nil, nil, a, b))
 }
