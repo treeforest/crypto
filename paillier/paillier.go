@@ -87,11 +87,11 @@ func GenerateKey(rd io.Reader, bits int) (*PrivateKey, error) {
 	n, m = new(big.Int), new(big.Int)
 
 	for {
-		p, err = rand.Prime(rd, bits)
+		p, err = rand.Prime(rd, bits/2)
 		if err != nil {
 			return nil, err
 		}
-		q, err = rand.Prime(rd, bits)
+		q, err = rand.Prime(rd, bits/2)
 		if err != nil {
 			return nil, err
 		}

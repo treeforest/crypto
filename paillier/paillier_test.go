@@ -32,7 +32,7 @@ func TestGenerateKey(t *testing.T) {
 }
 
 func TestPublicKey_Add(t *testing.T) {
-	key, err := GenerateKey(rand.Reader, 8)
+	key, err := GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
 
 	a := key.Public.Encrypt(10)
