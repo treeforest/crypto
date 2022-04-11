@@ -2,7 +2,6 @@ package paillier
 
 import (
 	"crypto/rand"
-	"fmt"
 	"io"
 	"math/big"
 	rnd "math/rand"
@@ -40,7 +39,7 @@ func (pub *PublicKey) Encrypt(val int64) *big.Int {
 	for {
 		r.Rand(mathRand, pub.N)
 		if gcd.GCD(nil, nil, r, pub.N).Cmp(one) == 0 {
-			fmt.Printf("r = %d\n", r.Int64())
+			// fmt.Printf("r = %d\n", r.Int64())
 			break
 		}
 	}

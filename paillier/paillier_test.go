@@ -54,12 +54,18 @@ func TestPublicKey_Add(t *testing.T) {
 }
 
 func Test(t *testing.T) {
-	g := big.NewInt(7)
-	n := big.NewInt(4)
+	g := big.NewInt(47)
+	n := big.NewInt(30)
+	var d, x, y big.Int
+	d.GCD(&x, &y, g, n)
+	t.Logf("x = %d, y = %d", x.Int64(), y.Int64())
+
+	if x.Sign() == -1 {
+		t.Logf("z = %d", new(big.Int).Add(&x, n).Int64())
+	} else {
+		t.Logf("z = %d", x.Int64())
+	}
+
 	c := new(big.Int).ModInverse(g, n)
 	t.Logf("c = %d", c.Int64())
-
-	var d, x big.Int
-	d.GCD(&x, nil, g, n)
-	t.Logf("x = %d", x.Int64())
 }
